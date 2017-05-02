@@ -16,12 +16,15 @@ const state = {
 const mutations = {
 	SET_USER(state, user) {
 		state.user = user
+		localStorage.setItem('user',JSON.stringify(user))
 	},
 	SET_ISLOGIN(state, isLogin) {
 		state.isLogin = isLogin
+		localStorage.setItem('isLogin',isLogin)
 	}, //设置登录状态
 	SET_TOKEN(state, token) {
 		state.token= token
+		localStorage.setItem('token',token)
 	},
 	INIT_MESSAGE_LIST(state, contactUserID) {
 		if (typeof state.messageList[parseInt(contactUserID)] == 'undefined') {
@@ -62,7 +65,6 @@ const actions = {
 		commit
 	}, token) {
 		commit('SET_TOKEN', token)
-		localStorage.setItem('token',token)
 	},
 	updateMessageList: function ({
 		commit

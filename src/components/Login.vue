@@ -1,15 +1,21 @@
 <template>
 	<el-row type="flex" class="login-container" justify="space-around" align="middle">
 		<el-col :span="6">
-			<el-form :model="userLogin" :rules="userLoginRule" ref="userLogin" class="user-login">
+			<el-row type="flex" justify="space-around">
+				<el-col :span="12">
+					<img src="../assets/image/Logo.png" width="100%" alt="">
+				</el-col>
+			</el-row>
+			<el-form :model="userLogin" :rules="userLoginRule" @keyup.enter.native="submitForm('userLogin')" ref="userLogin" class="user-login">
+				<el-form-item></el-form-item>
 				<el-form-item prop="email">
-					<el-input type="text" v-model="userLogin.email" auto-complete="off" placeholder="邮箱"></el-input>
+					<el-input type="text" v-model="userLogin.email" auto-complete="on" placeholder="邮箱"></el-input>
 				</el-form-item>
 				<el-form-item prop="password">
-					<el-input type="password" v-model="userLogin.password" auto-complete="off" placeholder="密码"></el-input>
+					<el-input type="password" v-model="userLogin.password" auto-complete="on" placeholder="密码"></el-input>
 				</el-form-item>
 				<el-form-item></el-form-item>
-				<el-form-item>
+				<el-form-item style="text-align: center">
 					<el-button type="text" class="register" @click="$router.push('/register')">注册</el-button>
 					<el-button type="primary" @click="submitForm('userLogin')">登录</el-button>
 				</el-form-item>
@@ -31,7 +37,7 @@ export default {
 					{ required: true, type: 'email', trigger: 'blur', message: '请输入常用的邮箱地址' }
 				],
 				password: [
-					{ required: true, min: 4, max: 18, trigger: 'blur', message: '密码长度在4-18位之间' }
+					{ required: true, min: 8, max: 18, trigger: 'blur', message: '密码长度在8-18位之间' }
 				]
 			}
 		}
@@ -46,9 +52,10 @@ export default {
 					}).then(res => {
 						if (res.status === 200) {
 							this.$message('登录成功')
-							loginSuccess(res)
+							this.loginSuccess(res.data)
 						}
 					}).catch(err => {
+						console.log(err)
 						this.$message('邮箱或密码错误')
 					})
 				} else {
@@ -64,8 +71,18 @@ export default {
 			}
 			this.$store.dispatch('setUser', user)
 			this.$store.dispatch('setLogin', true)
-			this.$store.dispatch('setToken', data.user.token)
+			this.$store.dispatch('setToken', data.token)
 			this.$router.push('/')
+		},
+		loginFailure() {
+			let user = {
+				email: '',
+				username: '',
+				nickname: ''
+			}
+			this.$store.dispatch('setUser', user)
+			this.$store.dispatch('setLogin', false)
+			this.$store.dispatch('setToken', null)
 		}
 	}
 }
@@ -79,6 +96,7 @@ export default {
 	right: 0;
 	bottom: 0;
 }
+
 .user-login {
 	height: 200px;
 

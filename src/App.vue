@@ -14,7 +14,13 @@
 <script>
 export default {
   name: 'app',
-  mounted() {
+  created() {
+    let isLogin = localStorage.getItem('isLogin'),user
+    if (isLogin) {
+      user = JSON.parse(localStorage.getItem('user'))
+      this.$store.dispatch('setLogin',!!isLogin)
+      this.$store.dispatch('setUser', user)
+    }
   },
   data() {
     return {
