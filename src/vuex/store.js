@@ -10,7 +10,8 @@ const state = {
 		username: '',
 		nickname: ''
 	},
-	token: ''
+	token: '',
+	isLoading: false
 }
 
 const mutations = {
@@ -26,27 +27,8 @@ const mutations = {
 		state.token= token
 		localStorage.setItem('token',token)
 	},
-	INIT_MESSAGE_LIST(state, contactUserID) {
-		if (typeof state.messageList[parseInt(contactUserID)] == 'undefined') {
-			state.messageList[parseInt(contactUserID)] = new Array()
-			console.log(state.messageList[parseInt(contactUserID)])
-		}
-	},
-	UPDATE_MESSAGE_LIST(state, msgData) {
-		let tempMsgList = state.messageList
-		state.messageList = null //不置空无法触发computed
-		if (msgData.msgType === 1) {
-			if (typeof tempMsgList[parseInt(msgData.targetID)] == 'undefined') {
-				tempMsgList[parseInt(msgData.targetID)] = new Array()
-			}
-			tempMsgList[parseInt(msgData.targetID)].push(msgData)
-		} else if (msgData.msgType === 2) {
-			if (typeof tempMsgList[parseInt(msgData.sourceID)] == 'undefined') {
-				tempMsgList[parseInt(msgData.sourceID)] = new Array()
-			}
-			tempMsgList[parseInt(msgData.sourceID)].push(msgData)
-		}
-		state.messageList = tempMsgList
+	SET_LOADING(state, isLoading) {
+		state.isLoading = isLoading
 	}
 }
 
@@ -66,15 +48,10 @@ const actions = {
 	}, token) {
 		commit('SET_TOKEN', token)
 	},
-	updateMessageList: function ({
+	setLoading: function({
 		commit
-	}, msgData) {
-		commit('UPDATE_MESSAGE_LIST', msgData)
-	},
-	updateCurrentContact: function ({
-		commit
-	}, contactInfo) {
-		commit('UPDATE_CURRENT_CONTACT', contactInfo)
+	}, isLoading) {
+		commit('SET_LOADING',isLoading)
 	}
 }
 

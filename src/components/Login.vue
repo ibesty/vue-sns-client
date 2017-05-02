@@ -46,15 +46,18 @@ export default {
 		submitForm(formName) {
 			this.$refs[formName].validate((valid) => {
 				if (valid) {
+					this.$store.dispatch('setLoading',true)
 					this.$axios.post('/api/auth', {
 						email: this.userLogin.email,
 						password: this.userLogin.password
 					}).then(res => {
 						if (res.status === 200) {
+							this.$store.dispatch('setLoading',false)
 							this.$message('登录成功')
 							this.loginSuccess(res.data)
 						}
 					}).catch(err => {
+						this.$store.dispatch('setLoading',false)
 						console.log(err)
 						this.$message('邮箱或密码错误')
 					})

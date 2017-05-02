@@ -6,7 +6,7 @@
 					<img src="../assets/image/Logo.png" width="100%" alt="">
 				</el-col>
 			</el-row>
-			<el-form :model="userRegister" :rules="userRegisterRule" ref="userRegister" class="user-login">
+			<el-form :model="userRegister" :rules="userRegisterRule" @keyup.enter.native="submitForm('userRegister')" ref="userRegister" class="user-login">
 				<el-form-item></el-form-item>
 				<el-form-item prop="email">
 					<el-input type="text" v-model="userRegister.email" auto-complete="off" placeholder="邮箱"></el-input>
@@ -21,7 +21,7 @@
 					<el-input type="password" v-model="userRegister.password" auto-complete="off" placeholder="密码"></el-input>
 				</el-form-item>
 				<el-form-item prop="passwordCheck">
-					<el-input type="password" v-model="userRegister.passwordCheck" auto-complete="off" placeholder="密码"></el-input>
+					<el-input type="password" v-model="userRegister.passwordCheck" auto-complete="off" placeholder="确认密码"></el-input>
 				</el-form-item>
 				<el-form-item style="text-align: center">
 					<el-button type="primary" @click="submitForm('userRegister')">注册</el-button>

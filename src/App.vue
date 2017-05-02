@@ -1,9 +1,9 @@
 <template>
-  <div id="app">
+  <div id="app" v-loading.fullscreen.lock="isLoading">
     <el-menu theme="dark" :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
       <el-row type="flex" justify="center">
         <el-col :span="18">
-          <el-menu-item index="1">主页</el-menu-item>
+          <el-menu-item index="1" @click="loading(true)">主页</el-menu-item>
         </el-col>
       </el-row>
     </el-menu>
@@ -27,12 +27,22 @@ export default {
       activeIndex: '1'
     }
   },
+  computed: {
+    isLoading: function () {
+      return this.$store.state.isLoading
+    }
+  },
   methods: {
     handleSelect(key, keyPath) {
       console.log(key, keyPath);
     },
     loginRedirect(){
 
+    },
+    loading(isLoading){
+      console.log(111)
+      alert(111)
+      this.isLoading = isLoading
     }
   }
 
