@@ -26,6 +26,12 @@
 
 <script>
 export default {
+	mounted(){
+		if (this.$store.state.isLogin) {
+			this.$message('您已登录')
+			this.$router.replace('/') //如果已登录，跳转到Timeline
+		}
+	},
 	data() {
 		return {
 			userLogin: {
@@ -58,6 +64,7 @@ export default {
 						}
 					}).catch(err => {
 						this.$store.dispatch('setLoading',false)
+						this.loginFailure()
 						console.log(err)
 						this.$message('邮箱或密码错误')
 					})
@@ -74,6 +81,7 @@ export default {
 			}
 			this.$store.dispatch('setUser', user)
 			this.$store.dispatch('setLogin', true)
+
 			this.$store.dispatch('setToken', data.token)
 			this.$router.push('/')
 		},

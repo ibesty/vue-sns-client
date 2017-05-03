@@ -33,6 +33,12 @@
 
 <script>
 export default {
+	mounted(){
+		if (!!this.$store.state.isLogin) {
+			this.$message('您已登录')
+			this.$router.replace('/') //如果已登录，跳转到Timeline
+		}
+	},
 	data() {
 		const validatePasswordCheck = (rule, value, callback) => {
 			if (value === '') {
