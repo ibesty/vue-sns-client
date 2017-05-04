@@ -3,7 +3,7 @@
     <el-menu theme="dark" :default-active="activeIndex" class="el-menu-demo" mode="horizontal" @select="handleSelect">
       <el-row type="flex" justify="center" align="middle">
         <el-col :span="16">
-          <el-menu-item index="1">主页</el-menu-item>
+          <el-menu-item index="1" @click="$router.push('/')">主页</el-menu-item>
         </el-col>
         <el-col :span="2">
           <el-button type="text" @click="logout()" v-if="isLogin">注销登录</el-button>

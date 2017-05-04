@@ -21,7 +21,7 @@
 								<li class="stat-list-item">
 									<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" class="stat-list-item-link">
 										<span class="stat-label">推文</span>
-										<span class="stat-value">{{postCount}}</span>
+										<span class="stat-value">{{streamCount}}</span>
 									</a>
 								</li>
 								<li class="stat-list-item">
@@ -101,7 +101,6 @@ export default {
 			postContent: '',
 			streamPosts: [],
 			streamCount: 0,
-			postCount: 0,
 			currentPage: 1,
 			userRelation: {
 				following: [],
@@ -111,38 +110,20 @@ export default {
 		}
 	},
 	methods: {
-		postAction() {
-			this.actionLoading = true
-			this.$axios.post('/api/posts', {
-				content: this.postContent
-			}, { headers: { 'Authorization': this.token } }).then(res => {
-				this.actionLoading = false
-				this.postContent = ''
-				this.$notify.success({ title: '发布成功', message: '推文已经成功发送' })
-				this.fetchTimeline()
-			}).catch(err => {
-				this.actionLoading = false
-				this.$notify.error({ title: '发布失败', message: '请稍后再试' })
-			})
-		},
 		fetchTimeline(val=1) {
 			this.currentPage = val
 			this.$store.dispatch('setLoading', true)
-			this.$axios.get('/api/timeline?page=' + this.currentPage, { headers: { 'Authorization': this.token } }).then(res => {
+			this.$axios.get('/api/posts/'+this.$route.params.username+'?page=' + this.currentPage, { headers: { 'Authorization': this.token } }).then(res => {
 				console.log(res.data.timeline)
-				this.streamPosts = res.data.timeline
-				this.streamCount = res.data.timelineCount
+				this.streamPosts = res.data.post
+				this.streamCount = res.data.postCount
 				// console.log(res.data)
 				this.$store.dispatch('setLoading', false)
 			}).catch(err => {
 			})
 		},
 		fetchUserinfo() {
-			this.$axios.get('/api/posts/' + this.user.username).then(res => {
-				// console.log(res.data.post.postCount)
-				this.postCount = res.data.post.postCount
-			})
-			this.$axios.get('/api/user-relations/' + this.user.username).then(res => {
+			this.$axios.get('/api/user-relations/' + this.$route.params.username).then(res => {
 				this.userRelation = res.data.userRelation
 			})
 		},
