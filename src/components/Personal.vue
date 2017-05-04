@@ -44,20 +44,6 @@
 			</el-col>
 			<el-col :span="17" class="timeline clearfix">
 				<div class="timeline-main clearfix">
-					<div class="timeline-post-box">
-						<div class="home-post-box">
-							<img :src="'/api/public/'+ user.username+ '.png'" alt="Lucientown" class="post-box-user-image">
-							<el-form class="post-form" style="overflow: auto">
-								<el-form-item prop="postContent">
-									<el-input type="textarea" v-model="postContent" :autosize="{ minRows: 4, maxRows: 5}" placeholder="有什么想分享的？"></el-input>
-								</el-form-item>
-								<el-form-item style="float: right">
-									<span class="length-count">{{140 - postContent.length}}</span>
-									<el-button type="primary" :loading="actionLoading" :disabled="actionDisable" @click="postAction">发布</el-button>
-								</el-form-item>
-							</el-form>
-						</div>
-					</div>
 					<div class="timeline-stream clearfix">
 						<ol class="stream">
 							<li class="stream-item" v-for="item in streamPosts">
