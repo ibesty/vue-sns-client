@@ -13,8 +13,10 @@
 								<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" class="nickname">{{user.nickname}}</a>
 							</div>
 							<span class="profile-card-username">
-								<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" class="username"><b>@{{user.username}}</b></a>
-							</span>
+									<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" class="username"><b>@{{user.username}}</b></a>
+								</span>
+							<el-button :plain="true" type="danger" v-if="isFollowing === '正在关注'" @click="defollow" class="is-following">{{isFollowing}}</el-button>
+							<el-button type="primary" v-if="isFollowing === '关注'" @click="" class="is-following">{{isFollowing}}</el-button>
 						</div>
 						<div class="profile-card-stats">
 							<ul class="profile-card-stat-list">
@@ -57,9 +59,9 @@
 												<span class="username">@<b>{{item.username}}</b></span>
 											</a>
 											<small class="time">
-																					{{new Date(item.creationDate).toLocaleDateString('zh-CN',{ month: "short",day: "numeric" })}} 
-																					{{new Date(item.creationDate).toLocaleTimeString('zh-CN',{ hour12: false,hour: "numeric",minute: "2-digit"})}}
-																		</small>
+																						{{new Date(item.creationDate).toLocaleDateString('zh-CN',{ month: "short",day: "numeric" })}} 
+																						{{new Date(item.creationDate).toLocaleTimeString('zh-CN',{ hour12: false,hour: "numeric",minute: "2-digit"})}}
+																			</small>
 											<el-button class="delete-btn" @click="deletePost(item._id)" v-if="item.username===user.username" type="text" size="mini">
 												删除
 											</el-button>
@@ -93,8 +95,9 @@ export default {
 			this.$message('未登录，跳转至登录页面...')
 			this.$router.replace('/login')
 		}
-		this.fetchUserinfo()
+		document.title = this.$route.params.username + ' | Lucien'
 		this.fetchTimeline()
+		this.fetchUserinfo()
 	},
 	data() {
 		return {
@@ -102,6 +105,10 @@ export default {
 			streamPosts: [],
 			streamCount: 0,
 			currentPage: 1,
+			userinfo: {
+				username: '',
+				nickname: ''
+			},
 			userRelation: {
 				following: [],
 				follower: []
@@ -110,21 +117,25 @@ export default {
 		}
 	},
 	methods: {
-		fetchTimeline(val=1) {
+		fetchTimeline(val = 1) {
 			this.currentPage = val
 			this.$store.dispatch('setLoading', true)
-			this.$axios.get('/api/posts/'+this.$route.params.username+'?page=' + this.currentPage, { headers: { 'Authorization': this.token } }).then(res => {
-				console.log(res.data.timeline)
+			this.$axios.get('/api/posts/' + this.$route.params.username + '?page=' + this.currentPage, { headers: { 'Authorization': this.token } }).then(res => {
+				//console.log(res.data.post)
 				this.streamPosts = res.data.post
 				this.streamCount = res.data.postCount
-				// console.log(res.data)
 				this.$store.dispatch('setLoading', false)
+				// console.log(res.data)
 			}).catch(err => {
 			})
 		},
 		fetchUserinfo() {
+			this.$axios.get('/api/users/' + this.$route.params.username, { headers: { 'Authorization': this.token } }).then(res => {
+				this.userinfo = res.data.user
+			})
 			this.$axios.get('/api/user-relations/' + this.$route.params.username).then(res => {
 				this.userRelation = res.data.userRelation
+				console.log(res.data.userRelation.follower[0].username)
 			})
 		},
 		deletePost(id) {
@@ -150,14 +161,23 @@ export default {
 		}
 	},
 	computed: {
-		token: function () {
+		token() {
 			return 'Bearer '.concat(this.$store.state.token)
 		},
-		user: function () {
+		user() {
 			return this.$store.state.user
 		},
-		actionDisable: function () {
+		actionDisable() {
 			return this.postContent.length <= 0 || this.postContent.length > 140
+		},
+		isFollowing() {
+			if (this.userinfo.username === this.user.username) {
+				return false
+			}
+			if (this.userRelation.follower.some(ele => { return ele.username === this.user.username })) {
+				return '正在关注'
+			}
+			return '关注'
 		}
 	}
 }
@@ -170,12 +190,12 @@ export default {
 	overflow: hidden;
 	background: #f5f8fa;
 	min-height: calc(100vh - 60px);
-	
+
 
 	.timeline-container {
 		padding: 10px 0;
-		
-		
+
+
 
 		.user-info {
 			height: 100%;
@@ -228,6 +248,12 @@ export default {
 						top: 103px;
 						left: 90px;
 						width: 185px;
+
+						.is-following {
+							position: absolute;
+							right: 10px;
+							top: 0;
+						}
 
 						.profile-card-nickname {
 							font-weight: 700;
@@ -310,14 +336,11 @@ export default {
 			background: transparent;
 			position: relative;
 			height: 100%;
-			
+
 
 			.timeline-main {
 				border-radius: 6px;
-				height: calc(100% - 36px);
-				// background: #fff;
-				
-
+				height: calc(100% - 36px); // background: #fff;
 				.timeline-post-box {
 					border-radius: 5px 5px 0 0;
 					border: 1px solid #e6ecf0;
@@ -439,8 +462,8 @@ export default {
 				}
 			}
 			.pagination {
-					padding-top: 5px;
-				}
+				padding-top: 5px;
+			}
 		}
 	}
 }

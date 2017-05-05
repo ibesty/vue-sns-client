@@ -107,6 +107,7 @@ export default {
 			this.$message('未登录，跳转至登录页面...')
 			this.$router.replace('/login')
 		}
+		document.title = 'Lucien'
 		this.fetchUserinfo()
 		this.fetchTimeline()
 	},
@@ -152,9 +153,9 @@ export default {
 			})
 		},
 		fetchUserinfo() {
-			this.$axios.get('/api/posts/' + this.user.username).then(res => {
+			this.$axios.get('/api/posts/' + this.user.username+ '?page=1').then(res => {
 				// console.log(res.data.post.postCount)
-				this.postCount = res.data.post.postCount
+				this.postCount = res.data.postCount
 			})
 			this.$axios.get('/api/user-relations/' + this.user.username).then(res => {
 				this.userRelation = res.data.userRelation
