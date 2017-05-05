@@ -1,36 +1,40 @@
 <template>
-	<el-row type="flex" class="login-container" justify="space-around" align="middle">
+	<el-row type="flex" class="login-container" justify="center" align="middle">
 		<el-col :span="6">
 			<el-row type="flex" justify="space-around">
 				<el-col :span="12">
 					<img src="../assets/image/Logo.png" width="100%" alt="">
 				</el-col>
 			</el-row>
-			<el-form :model="userLogin" :rules="userLoginRule" @keyup.enter.native="submitForm('userLogin')" ref="userLogin" class="user-login">
-				<el-form-item></el-form-item>
-				<el-form-item prop="email">
-					<el-input type="text" v-model="userLogin.email" auto-complete="on" placeholder="邮箱"></el-input>
-				</el-form-item>
-				<el-form-item prop="password">
-					<el-input type="password" v-model="userLogin.password" auto-complete="on" placeholder="密码"></el-input>
-				</el-form-item>
-				<el-form-item></el-form-item>
-				<el-form-item style="text-align: center">
-					<el-button type="text" class="register" @click="$router.push('/register')">注册</el-button>
-					<el-button type="primary" @click="submitForm('userLogin')">登录</el-button>
-				</el-form-item>
-			</el-form>
+			<el-row type="flex" justify="center" align="middle">
+				<el-col :span="18">
+					<el-form :model="userLogin" :rules="userLoginRule" @keyup.enter.native="submitForm('userLogin')" ref="userLogin" class="user-login">
+						<el-form-item></el-form-item>
+						<el-form-item prop="email">
+							<el-input type="text" v-model="userLogin.email" auto-complete="on" placeholder="邮箱"></el-input>
+						</el-form-item>
+						<el-form-item prop="password">
+							<el-input type="password" v-model="userLogin.password" auto-complete="on" placeholder="密码"></el-input>
+						</el-form-item>
+						<el-form-item style="text-align: center">
+							<el-button type="text" class="register" @click="$router.push('/register')">注册</el-button>
+							<el-button type="primary" @click="submitForm('userLogin')">登录</el-button>
+						</el-form-item>
+					</el-form>
+				</el-col>
+			</el-row>
 		</el-col>
 	</el-row>
 </template>
 
 <script>
 export default {
-	mounted(){
+	mounted() {
 		if (this.$store.state.isLogin) {
 			this.$message('您已登录')
 			this.$router.replace('/') //如果已登录，跳转到Timeline
 		}
+		document.title = '登录 | Lucien'
 	},
 	data() {
 		return {
@@ -52,18 +56,18 @@ export default {
 		submitForm(formName) {
 			this.$refs[formName].validate((valid) => {
 				if (valid) {
-					this.$store.dispatch('setLoading',true)
+					this.$store.dispatch('setLoading', true)
 					this.$axios.post('/api/auth', {
 						email: this.userLogin.email,
 						password: this.userLogin.password
 					}).then(res => {
 						if (res.status === 200) {
-							this.$store.dispatch('setLoading',false)
+							this.$store.dispatch('setLoading', false)
 							this.$message('登录成功')
 							this.loginSuccess(res.data)
 						}
 					}).catch(err => {
-						this.$store.dispatch('setLoading',false)
+						this.$store.dispatch('setLoading', false)
 						this.loginFailure()
 						console.log(err)
 						this.$message('邮箱或密码错误')
@@ -101,11 +105,7 @@ export default {
 
 <style lang="scss" scoped>
 .login-container {
-	position: absolute;
-	top: 60px;
-	left: 0;
-	right: 0;
-	bottom: 0;
+	height: calc(100vh - 50px);
 }
 
 .user-login {

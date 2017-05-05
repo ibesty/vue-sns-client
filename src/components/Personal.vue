@@ -1,39 +1,43 @@
 <template>
 	<el-row type="flex" justify="center" class="row-bg clearfix">
 		<el-col :span="18" class="timeline-container">
+			<div class="cover-banner">
+				<img :src="'/api/public/cover-banner/'+userinfo.username+'.webp'" :alt="userinfo.nickname">
+				<el-button v-if="userinfo.username === user.username" size="small" class="cover-upload-btn">上传背景图</el-button>
+			</div>
 			<el-col :span="7" class="user-info">
 				<div class="profile-card">
-					<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" class="profile-card-bg"></a>
+					<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: userinfo.username}})" class="profile-card-bg"></a>
 					<div class="profile-card-content">
-						<a class="profile-card-avatar-link" href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" title="Lucien Town">
-							<img class="profile-card-avatar-image" :src="'/api/public/'+ user.username+ '.png'" alt="">
+						<a class="profile-card-avatar-link" href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: userinfo.username}})" :title="userinfo.nickname">
+							<img class="profile-card-avatar-image" :src="'/api/public/'+ userinfo.username+ '.png'" alt="">
 						</a>
 						<div class="profile-card-userinfo">
 							<div class="profile-card-nickname">
-								<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" class="nickname">{{user.nickname}}</a>
+								<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: userinfo.username}})" class="nickname">{{userinfo.nickname}}</a>
 							</div>
 							<span class="profile-card-username">
-									<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" class="username"><b>@{{user.username}}</b></a>
-								</span>
-							<el-button :plain="true" type="danger" v-if="isFollowing === '正在关注'" @click="defollow" class="is-following">{{isFollowing}}</el-button>
-							<el-button type="primary" v-if="isFollowing === '关注'" @click="" class="is-following">{{isFollowing}}</el-button>
+																			<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: userinfo.username}})" class="username"><b>@{{userinfo.username}}</b></a>
+																		</span>
+							<el-button :plain="true" type="danger" v-if="isFollowing === '正在关注'" @click="unfollow" class="is-following">{{isFollowing}}</el-button>
+							<el-button type="primary" v-if="isFollowing === '关注'" @click="follow" class="is-following">{{isFollowing}}</el-button>
 						</div>
 						<div class="profile-card-stats">
 							<ul class="profile-card-stat-list">
 								<li class="stat-list-item">
-									<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" class="stat-list-item-link">
+									<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: userinfo.username}})" class="stat-list-item-link">
 										<span class="stat-label">推文</span>
 										<span class="stat-value">{{streamCount}}</span>
 									</a>
 								</li>
 								<li class="stat-list-item">
-									<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" class="stat-list-item-link">
+									<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: userinfo.username}})" class="stat-list-item-link">
 										<span class="stat-label">正在关注</span>
 										<span class="stat-value">{{userRelation.following.length}}</span>
 									</a>
 								</li>
 								<li class="stat-list-item">
-									<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" class="stat-list-item-link">
+									<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: userinfo.username}})" class="stat-list-item-link">
 										<span class="stat-label">关注者</span>
 										<span class="stat-value">{{userRelation.follower.length}}</span>
 									</a>
@@ -59,9 +63,9 @@
 												<span class="username">@<b>{{item.username}}</b></span>
 											</a>
 											<small class="time">
-																						{{new Date(item.creationDate).toLocaleDateString('zh-CN',{ month: "short",day: "numeric" })}} 
-																						{{new Date(item.creationDate).toLocaleTimeString('zh-CN',{ hour12: false,hour: "numeric",minute: "2-digit"})}}
-																			</small>
+																																{{new Date(item.creationDate).toLocaleDateString('zh-CN',{ month: "short",day: "numeric" })}} 
+																																{{new Date(item.creationDate).toLocaleTimeString('zh-CN',{ hour12: false,hour: "numeric",minute: "2-digit"})}}
+																													</small>
 											<el-button class="delete-btn" @click="deletePost(item._id)" v-if="item.username===user.username" type="text" size="mini">
 												删除
 											</el-button>
@@ -95,7 +99,6 @@ export default {
 			this.$message('未登录，跳转至登录页面...')
 			this.$router.replace('/login')
 		}
-		document.title = this.$route.params.username + ' | Lucien'
 		this.fetchTimeline()
 		this.fetchUserinfo()
 	},
@@ -132,10 +135,10 @@ export default {
 		fetchUserinfo() {
 			this.$axios.get('/api/users/' + this.$route.params.username, { headers: { 'Authorization': this.token } }).then(res => {
 				this.userinfo = res.data.user
+				document.title = this.userinfo.nickname + ' | Lucien'
 			})
 			this.$axios.get('/api/user-relations/' + this.$route.params.username).then(res => {
 				this.userRelation = res.data.userRelation
-				console.log(res.data.userRelation.follower[0].username)
 			})
 		},
 		deletePost(id) {
@@ -156,8 +159,52 @@ export default {
 						message: '网络错误'
 					})
 				})
-			}).catch(() => { })
-
+			}).catch(err => {
+				console.log(err)
+			})
+		},
+		follow() {
+			this.$axios.put('/api/user-relations/' + this.user.username, {
+				userRelation: {
+					following: {
+						username: this.userinfo.username,
+						nickname: this.userinfo.nickname
+					}
+				}
+			}, { headers: { 'Authorization': this.token } }).then(res => {
+				this.$message({
+					type: 'success',
+					message: '关注成功!'
+				})
+				this.fetchUserinfo()
+			}).catch(err => {
+				this.$message({
+					type: 'info',
+					message: '网络错误'
+				})
+			})
+		},
+		unfollow() {
+			this.$confirm('是否取消关注?', '提示', {
+				confirmButtonText: '确定',
+				cancelButtonText: '取消',
+				type: 'warning'
+			}).then(() => {
+				this.$axios.delete('/api/user-relations/' + this.user.username + '/' + this.userinfo.username, { headers: { 'Authorization': this.token } }).then(res => {
+					this.$message({
+						type: 'success',
+						message: '取消关注成功!'
+					})
+					this.fetchUserinfo()
+				}).catch(err => {
+					this.$message({
+						type: 'info',
+						message: '网络错误'
+					})
+				})
+			}).catch(err => {
+				console.log(err)
+			})
 		}
 	},
 	computed: {
@@ -195,7 +242,24 @@ export default {
 	.timeline-container {
 		padding: 10px 0;
 
+		.cover-banner {
+			height: 200px;
+			width: 100%;
+			position: relative;
 
+			img {
+				object-fit: cover;
+				height: 100%;
+				width: 100%;
+				border-radius: 5px;
+			}
+
+			.cover-upload-btn {
+				position: absolute;
+				right: 20px;
+				bottom: 20px;
+			}
+		}
 
 		.user-info {
 			height: 100%;
@@ -339,8 +403,7 @@ export default {
 
 
 			.timeline-main {
-				border-radius: 6px;
-				height: calc(100% - 36px); // background: #fff;
+				border-radius: 6px; // height: calc(100% - 36px); // background: #fff;
 				.timeline-post-box {
 					border-radius: 5px 5px 0 0;
 					border: 1px solid #e6ecf0;

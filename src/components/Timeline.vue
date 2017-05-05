@@ -107,7 +107,7 @@ export default {
 			this.$message('未登录，跳转至登录页面...')
 			this.$router.replace('/login')
 		}
-		document.title = 'Lucien'
+		document.title = '首页 | Lucien'
 		this.fetchUserinfo()
 		this.fetchTimeline()
 	},
@@ -134,6 +134,7 @@ export default {
 				this.actionLoading = false
 				this.postContent = ''
 				this.$notify.success({ title: '发布成功', message: '推文已经成功发送' })
+				this.fetchUserinfo()
 				this.fetchTimeline()
 			}).catch(err => {
 				this.actionLoading = false
@@ -348,7 +349,7 @@ export default {
 
 			.timeline-main {
 				border-radius: 6px;
-				height: calc(100% - 36px);
+				// height: calc(100% - 36px);
 				// background: #fff;
 				
 
