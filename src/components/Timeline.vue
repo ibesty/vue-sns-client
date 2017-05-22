@@ -5,8 +5,8 @@
 				<div class="profile-card">
 					<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" class="profile-card-bg"></a>
 					<div class="profile-card-content">
-						<a class="profile-card-avatar-link" href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" title="Lucien Town">
-							<img class="profile-card-avatar-image" :src="'/api/public/'+ user.username+ '.png'" alt="">
+						<a class="profile-card-avatar-link" href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: user.username}})" :title="user.nickname">
+							<img class="profile-card-avatar-image" :src="'/api/public/avatar/'+ user.username+ '.png'" alt="">
 						</a>
 						<div class="profile-card-userinfo">
 							<div class="profile-card-nickname">
@@ -46,7 +46,7 @@
 				<div class="timeline-main clearfix">
 					<div class="timeline-post-box">
 						<div class="home-post-box">
-							<img :src="'/api/public/'+ user.username+ '.png'" alt="Lucientown" class="post-box-user-image">
+							<img :src="'/api/public/avatar/'+ user.username+ '.png'" :alt="user.nickname" class="post-box-user-image">
 							<el-form class="post-form" style="overflow: auto">
 								<el-form-item prop="postContent">
 									<el-input type="textarea" v-model="postContent" :autosize="{ minRows: 4, maxRows: 5}" placeholder="有什么想分享的？"></el-input>
@@ -65,7 +65,7 @@
 									<div class="content">
 										<div class="stream-item-header">
 											<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: item.username}})" class="user-group clearfix">
-												<img :src="'/api/public/'+item.username+'.png'" alt="" class="avatar">
+												<img :src="'/api/public/avatar/'+item.username+'.png'" alt="" class="avatar">
 												<span class="nickname"><strong>{{item.nickname}}</strong></span>
 												<span>&nbsp</span>
 												<span class="username">@<b>{{item.username}}</b></span>
@@ -149,6 +149,7 @@ export default {
 				this.streamPosts = res.data.timeline
 				this.streamCount = res.data.timelineCount
 				// console.log(res.data)
+				document.body.scrollTop = 0
 				this.$store.dispatch('setLoading', false)
 			}).catch(err => {
 			})

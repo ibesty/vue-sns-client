@@ -3,22 +3,33 @@
 		<el-col :span="18" class="timeline-container">
 			<div class="cover-banner">
 				<img :src="'/api/public/cover-banner/'+userinfo.username+'.webp'" :alt="userinfo.nickname">
-				<el-button v-if="userinfo.username === user.username" size="small" class="cover-upload-btn">上传背景图</el-button>
+				<el-button v-if="userinfo.username === user.username" size="small" class="cover-upload-btn" @click="showUploadDialog=true">上传背景图</el-button>
+				<el-dialog title="上传背景图片" size="tiny" v-model="showUploadDialog">
+					<el-upload class="cover-uploader" action="https://jsonplaceholder.typicode.com/posts/" :auto-upload="false" :show-file-list="false" :on-success="handleCoverSuccess" :before-upload="beforeCoverUpload" :on-preview="handleCoverPreview">
+						<img v-if="imageUrl" :src="imageUrl" class="cover-preview">
+						<i v-else class="el-icon-plus cover-uploader-icon"></i>
+						<div slot="tip" class="el-upload__tip">只能上传jpg/png文件，且不超过2MB</div>
+					</el-upload>
+					<span slot="footer">
+						<el-button size="small" type="plain" >取消</el-button>
+						<el-button size="small" type="success" >确认上传</el-button>
+					</span>
+				</el-dialog>
 			</div>
 			<el-col :span="7" class="user-info">
 				<div class="profile-card">
 					<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: userinfo.username}})" class="profile-card-bg"></a>
 					<div class="profile-card-content">
 						<a class="profile-card-avatar-link" href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: userinfo.username}})" :title="userinfo.nickname">
-							<img class="profile-card-avatar-image" :src="'/api/public/'+ userinfo.username+ '.png'" alt="">
+							<img class="profile-card-avatar-image" :src="'/api/public/avatar/'+ userinfo.username+ '.png'" alt="">
 						</a>
 						<div class="profile-card-userinfo">
 							<div class="profile-card-nickname">
 								<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: userinfo.username}})" class="nickname">{{userinfo.nickname}}</a>
 							</div>
 							<span class="profile-card-username">
-																			<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: userinfo.username}})" class="username"><b>@{{userinfo.username}}</b></a>
-																		</span>
+																										<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: userinfo.username}})" class="username"><b>@{{userinfo.username}}</b></a>
+																									</span>
 							<el-button :plain="true" type="danger" v-if="isFollowing === '正在关注'" @click="unfollow" class="is-following">{{isFollowing}}</el-button>
 							<el-button type="primary" v-if="isFollowing === '关注'" @click="follow" class="is-following">{{isFollowing}}</el-button>
 						</div>
@@ -57,15 +68,15 @@
 									<div class="content">
 										<div class="stream-item-header">
 											<a href="javascript:void(0)" @click="$router.push({name: 'Personal', params: { username: item.username}})" class="user-group clearfix">
-												<img :src="'/api/public/'+item.username+'.png'" alt="" class="avatar">
+												<img :src="'/api/public/avatar/'+item.username+'.png'" alt="" class="avatar">
 												<span class="nickname"><strong>{{item.nickname}}</strong></span>
 												<span>&nbsp</span>
 												<span class="username">@<b>{{item.username}}</b></span>
 											</a>
 											<small class="time">
-																																{{new Date(item.creationDate).toLocaleDateString('zh-CN',{ month: "short",day: "numeric" })}} 
-																																{{new Date(item.creationDate).toLocaleTimeString('zh-CN',{ hour12: false,hour: "numeric",minute: "2-digit"})}}
-																													</small>
+																																							{{new Date(item.creationDate).toLocaleDateString('zh-CN',{ month: "short",day: "numeric" })}} 
+																																							{{new Date(item.creationDate).toLocaleTimeString('zh-CN',{ hour12: false,hour: "numeric",minute: "2-digit"})}}
+																																				</small>
 											<el-button class="delete-btn" @click="deletePost(item._id)" v-if="item.username===user.username" type="text" size="mini">
 												删除
 											</el-button>
@@ -83,7 +94,7 @@
 						</ol>
 					</div>
 				</div>
-				<el-row type="flex" justify="center" align="bottom">
+				<el-row type="flex" justify="center">
 					<el-pagination class="pagination" :pageSize="10" :currentPage="currentPage" @current-change="fetchTimeline" layout="prev, pager, next" :total="streamCount">
 					</el-pagination>
 				</el-row>
@@ -116,7 +127,9 @@ export default {
 				following: [],
 				follower: []
 			},
-			actionLoading: false
+			actionLoading: false,
+			showUploadDialog: false,
+			imageUrl: undefined
 		}
 	},
 	methods: {
@@ -124,9 +137,10 @@ export default {
 			this.currentPage = val
 			this.$store.dispatch('setLoading', true)
 			this.$axios.get('/api/posts/' + this.$route.params.username + '?page=' + this.currentPage, { headers: { 'Authorization': this.token } }).then(res => {
-				//console.log(res.data.post)
+				console.log(res.data.post)
 				this.streamPosts = res.data.post
 				this.streamCount = res.data.postCount
+				document.body.scrollTop = 0
 				this.$store.dispatch('setLoading', false)
 				// console.log(res.data)
 			}).catch(err => {
@@ -205,6 +219,22 @@ export default {
 			}).catch(err => {
 				console.log(err)
 			})
+		},
+		handleCoverSuccess(res, file) {
+			this.$message('上传成功！')
+			this.showUploadDialog = false
+		},
+		beforeCoverUpload(file) {
+			const isJPGorPNG = file.type === 'image/jpeg' && 'image/png';
+			const isLt2M = file.size / 1024 / 1024 < 2;
+
+			if (!isJPGorPNG) {
+				this.$message.error('上传的背景图片只能是 JPG 或 PNG 格式!');
+			}
+			if (!isLt2M) {
+				this.$message.error('上传的背景图片大小不能超过 2MB!');
+			}
+			return isJPGorPNG && isLt2M;
 		}
 	},
 	computed: {
@@ -252,6 +282,34 @@ export default {
 				height: 100%;
 				width: 100%;
 				border-radius: 5px;
+			}
+
+			.cover-uploader {
+				border: 1px dashed #d9d9d9;
+				border-radius: 6px;
+				cursor: pointer;
+				position: relative;
+				overflow: hidden;
+				text-align: center;
+
+				&:hover {
+					border-color: #20a0ff;
+				}
+
+				.cover-uploader-icon {
+					font-size: 28px;
+					color: #8c939d;
+					width: 178px;
+					height: 178px;
+					line-height: 178px;
+					text-align: center;
+				}
+
+				.cover-preview {
+					width: 178px;
+					height: 178px;
+					display: block;
+				}
 			}
 
 			.cover-upload-btn {
@@ -403,7 +461,8 @@ export default {
 
 
 			.timeline-main {
-				border-radius: 6px; // height: calc(100% - 36px); // background: #fff;
+				border-radius: 6px;
+				min-height: 348px; // height: calc(100% - 230px); // background: #fff;
 				.timeline-post-box {
 					border-radius: 5px 5px 0 0;
 					border: 1px solid #e6ecf0;
@@ -525,7 +584,7 @@ export default {
 				}
 			}
 			.pagination {
-				padding-top: 5px;
+				margin-top: 5px;
 			}
 		}
 	}

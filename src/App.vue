@@ -10,7 +10,7 @@
             <el-col :span="4">
               <el-dropdown v-if="isLogin" class="settings" @command="handleCommand">
                 <span class="el-dropdown-link">
-                                  <img :src="'/api/public/'+user.username+'.png'" alt="设置" class="settings-img">
+                                  <img :src="'/api/public/avatar/'+user.username+'.png'" alt="设置" class="settings-img">
                                 </span>
                 <el-dropdown-menu slot="dropdown">
                   <el-dropdown-item command="a">个人设置</el-dropdown-item>
@@ -180,6 +180,7 @@ body {
   font-size: 14px;
   line-height: 18px;
   overflow-y: scroll;
+  scroll-behavior: smooth;
 }
 
 ol,
